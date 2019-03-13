@@ -1,0 +1,22 @@
+class a b = c.d {a a a}
+
+
+class asd {
+    int aVar;
+    char bCh;
+    int ggg;
+};
+
+asd m;
+
+asd cls;
+
+class asssa {
+    int aVar;
+    char bCh;
+    int ggg;
+};
+
+asssa kj;
+asssa jjj;
+
