@@ -50,6 +50,8 @@ public class Main {
             e.printStackTrace();
         }
 
+
+
         if (resAnalise == 1) {
             System.out.println("Синтаксических ошибок не обнаружено");
         } else {

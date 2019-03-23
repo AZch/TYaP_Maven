@@ -141,7 +141,7 @@ public class Constants {
     static final int END_PR = 26;
 
     public static final int sizeInt = 4;
-    public static final char sizeChar = 1;
+    public static final int sizeChar = 1;
 
 
 }
