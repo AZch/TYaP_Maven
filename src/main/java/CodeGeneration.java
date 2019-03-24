@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 
 public class CodeGeneration {
-    public String generate(ArrayList<Triad> triads) {
+    public ArrayList<Triad> generate(ArrayList<Triad> triads) {
         regAvail.add("eax");
         regAvail.add("ebx");
         regAvail.add("ecx");
         regAvail.add("edx");
+        ArrayList<Integer> goLinks = new ArrayList<>();
         boolean isFun = false;
         boolean isFindRes = false;
+        int countJmp = 0;
         int result = 0;
         int sizeFun = 0;
         // 0 - no remove
@@ -18,6 +20,13 @@ public class CodeGeneration {
         String indexResult = "";
         ArrayList<Triad> codeTriad = new ArrayList<>();
         for (Triad triad : triads) {
+            for (int oneTriad : goLinks) {
+                if (triad.index == oneTriad) {
+                    codeTriad.add(new Triad(".L" + (int) triad.index + ":", "", ""));
+                    goLinks.remove(goLinks.indexOf(oneTriad));
+                    break;
+                }
+            }
             if (triad.proc.equals("int") || triad.proc.equals("char")) {
                 if (!isFun) {
                     codeTriad.add(new Triad("", ".global", triad.operand1));
@@ -42,13 +51,40 @@ public class CodeGeneration {
                 } else {
                     if (triad.operand2.indexOf(')') != -1) {
                         isNum = true;
+                        int lastSizeCodeGen = codeTriad.size();
                         int resultCalc = resultCalc(triads, triads.get(Integer.valueOf(triad.operand2.split("\\)")[0])), codeTriad, startFun);
                         if (triad.operand1.equals("if")) {
                             if (isNum) {
                                 if (resultCalc > 0) {
-                                    //removeElse
+                                    removeInIf = -1;
+                                } else {
+                                    removeInIf = 1;
                                 }
+                                for (int i = codeTriad.size() - 1; codeTriad.size() != lastSizeCodeGen; i--) {
+                                    codeTriad.remove(codeTriad.get(i));
+                                }
+                            } else {
+                                if (cmpOper.equals("")) {
+                                    codeTriad.add(new Triad("cmpl", "$0", "%" + regStack.get(regStack.size() - 1)));
+                                    regAvail.add(regStack.get(regStack.size() - 1));
+                                    regStack.remove(regStack.size() - 1);
+                                    cmpOper = "je";
+                                } else if (cmpOper.equals("=="))
+                                    cmpOper = "je";
+                                else if (cmpOper.equals(">"))
+                                    cmpOper = "jm";
+                                else if (cmpOper.equals("<"))
+                                    cmpOper = "jl";
+                                else if (cmpOper.equals(">="))
+                                    cmpOper = "jme";
+                                else if (cmpOper.equals("<="))
+                                    cmpOper = "jle";
+                                else if (cmpOper.equals("!="))
+                                    cmpOper = "jne";
+                                regAvail.add(regStack.get(regStack.size() - 1));
+                                regStack.remove(regStack.size() - 1);
                             }
+                        } else {
                             if (isNum)
                                 codeTriad.add(new Triad("movl",
                                         "$" + String.valueOf(resultCalc),
@@ -67,7 +103,26 @@ public class CodeGeneration {
                                 "-" + String.valueOf(bytePos(startFun, triads, triads.get(Integer.valueOf(triad.operand1.split("\\)")[0])).operand1)) + "(%rbp)"));
                 }
             }
-
+            if (triad.proc.equals("go")) {
+                codeTriad.add(new Triad("jmp", ".L" + triad.operand1.split("\\)")[0], ""));
+                goLinks.add(Integer.valueOf(triad.operand1.split("\\)")[0]));
+            }
+            if (triad.proc.equals("if")) {
+                if (isNum) {
+                    if (removeInIf == 11) {
+                        removeTriads(triads, Integer.valueOf(triad.operand1.split("\\)")[0]), Integer.valueOf(triad.operand2.split("\\)")[0]) - 1);
+                    } else if (removeInIf == -11) {
+                        if (triads.get(Integer.valueOf(triad.operand2.split("\\)")[0]) - 1).proc.equals("go"))
+                            removeTriads(triads, Integer.valueOf(triad.operand2.split("\\)")[0]) - 1, Integer.valueOf(triads.get(Integer.valueOf(triad.operand2.split("\\)")[0]) - 1).operand1.split("\\)")[0]) - 1);
+                    } else {
+                        codeTriad.add(new Triad(cmpOper, ".L" + triad.operand2.split("\\)")[0], ""));
+                        goLinks.add(Integer.valueOf(triad.operand2.split("\\)")[0]));
+                    }
+                } else {
+                    codeTriad.add(new Triad(cmpOper, ".L" + triad.operand2.split("\\)")[0], ""));
+                    goLinks.add(Integer.valueOf(triad.operand2.split("\\)")[0]));
+                }
+            }
             if (triad.proc.equals("fun") && triad.operand1.equals("main") && !triad.operand2.equals("end")) {
                 codeTriad.add(new Triad(".text", "", ""));
                 codeTriad.add(new Triad(".global", triad.operand1, ""));
@@ -84,11 +139,25 @@ public class CodeGeneration {
                 startFun = triad;
                 isFun = true;
             }
-            if (triad.proc.equals("fun") && triad.operand1.equals("main") && !triad.operand2.equals("end")) {
-
+            if (triad.proc.equals("fun") && triad.operand1.equals("main") && triad.operand2.equals("end")) {
+                int a;
+                a = 6;
             }
         }
-        return "";
+        return codeTriad;
+    }
+
+    private int removeTriads(ArrayList<Triad> triads, int indexStart, int indexEnd) {
+        int countBias = 0;
+        for (int i = indexStart; i <= indexEnd; i++) {
+            if (triads.get(i).proc.equals("int"))
+                countBias += Constants.sizeInt;
+            else if (triads.get(i).proc.equals("char")) {
+                countBias += Constants.sizeChar;
+            }
+            triads.remove(triads.get(i));
+        }
+        return countBias;
     }
 
     private int bytePos(Triad funStart, ArrayList<Triad> triads, String name) {
