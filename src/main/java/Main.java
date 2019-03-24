@@ -23,6 +23,8 @@ public class Main {
         int resAnalise = ll1.LL1Analise(scaner);
 //        PrecedenceAnalyz precedenceAnalyz = new PrecedenceAnalyz();
 //        int resAnalise = precedenceAnalyz.analyz(scaner);
+        CodeGeneration codeGeneration = new CodeGeneration();
+        codeGeneration.generate(ll1.triads);
         Optimization optimization = new Optimization();
         ArrayList<Triad> triads = optimization.make(ll1.triads);
         int count = 0;

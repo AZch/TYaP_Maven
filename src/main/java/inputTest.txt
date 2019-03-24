@@ -11,8 +11,10 @@ void main() {
     asd m;
     m.aVar = 45;
     m.aVar = 45;
+    int a;
+    a = 3 * ((4 + m.aVar) - (7 / 9)) - (16 * 10) + 99;
 
-    if (5 + 15 > 0) {
+    if (a + 15 > 0) {
         m.aVar = 40;
         int gh = 7;
         int bh = 10 + gh;
@@ -28,7 +30,7 @@ void main() {
         joji = 90 + 52;
     }
 
-    int a;
+    //int a;
     a = 3 * ((4 + 5) - (7 / 9)) - (16 * 10) + 99;
     int b = 7 + a * 2, g = 11;
     a = 5;
