@@ -204,6 +204,7 @@ public class Optimization {
         deleteUnUseTriadVar(root.next);
         deleteUnUseTriadIf(root.next);
         deleteDublicateVar(root.next, triads);
+        deleteUnUseTriadIf(root.next);
         for (Triad triad : triads) {
             Vert vert = getVertByIndex(triads.indexOf(triad), root);
             boolean dontAdd = false;
@@ -233,6 +234,8 @@ public class Optimization {
             System.out.println(String.valueOf(triad.index) + ") " + triad.proc + " " + triad.operand1 + " " + triad.operand2);
         }
 
+        setNormalIndex(resTriad);
+
         boolean startFun = false;
         int countByte = 0;
         int indexTriad = 0;
@@ -257,6 +260,104 @@ public class Optimization {
 
         makeGraph(root, "testOpt");
         return resTriad;
+    }
+
+    private void makeNormalIndex(ArrayList<Triad> resTriad, int countTriad, Triad triad) {
+        for (Triad triadUse : resTriad) {
+            try {
+                if (triadUse.operand1.indexOf(')') != -1 &&
+                        Integer.valueOf(triadUse.operand1.split("\\)")[0]) == triad.index)
+                    triadUse.operand1 = countTriad + ")";
+            } catch (Exception e) {}
+            try {
+                if (triadUse.operand2.indexOf(')')> 0 &&
+                        Integer.valueOf(triadUse.operand2.split("\\)")[0]) == triad.index)
+                    triadUse.operand2 = countTriad + ")";
+            } catch (Exception e) {}
+        }
+    }
+
+    private void makeNormalIndexLinks(ArrayList<Triad> resTriad, int idDel) {
+        for (Triad triad : resTriad) {
+            if (triad.proc.equals("if")) {
+                int indexTrue = Integer.valueOf(triad.operand1.split("\\)")[0]);
+                boolean findTrue = true;
+                if (indexTrue != idDel)
+                    findTrue = false;
+                int indexFalse = Integer.valueOf(triad.operand2.split("\\)")[0]);
+                boolean findFalse = false;
+                if (indexFalse != idDel)
+                    findFalse = true;
+                for (int i = resTriad.indexOf(triad); i < resTriad.size(); i++) {
+                    if (!findTrue && resTriad.get(i).index >= indexTrue) {
+                        triad.operand1 = (int) resTriad.get(i).index + ")";
+                        findTrue = true;
+                    }
+                    if (!findFalse && resTriad.get(i).index >= indexFalse) {
+                        triad.operand2 = (int) resTriad.get(i).index + ")";
+                        findFalse = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private void setNormalIndex(ArrayList<Triad> resTriad) {
+        int countTriad;
+        for (countTriad = 0; countTriad < resTriad.size(); countTriad++) {
+            Triad triad = resTriad.get(countTriad);
+            if (countTriad > 0 && resTriad.get(countTriad - 1).proc.equals("go")) {
+                if (triad.index == Integer.valueOf(resTriad.get(countTriad - 1).operand1.split("\\)")[0])) {
+                    int index = (int) resTriad.get(countTriad - 1).index;
+                    resTriad.remove(countTriad - 1);
+                    countTriad--;
+                    makeNormalIndexLinks(resTriad, index);
+                }
+            }
+
+            makeNormalIndex(resTriad, countTriad, triad);
+
+
+            if (triad.proc.equals("if")) {
+                int indexTrue = Integer.valueOf(triad.operand1.split("\\)")[0]);
+                boolean findTrue = false;
+                int indexFalse = Integer.valueOf(triad.operand2.split("\\)")[0]);
+                for (int i = resTriad.indexOf(triad); i < resTriad.size(); i++) {
+                    if (!findTrue && resTriad.get(i).index >= indexTrue) {
+                        triad.operand1 = (int) resTriad.get(i).index + ")";
+                        findTrue = true;
+                    }
+                    if (resTriad.get(i).index >= indexFalse) {
+                        triad.operand2 = (int) resTriad.get(i).index + ")";
+                        break;
+                    }
+                }
+                if (triad.operand2.equals(triad.operand1)) {
+                    int i = 0;
+                    for (i = resTriad.indexOf(triad); i > 0 && !(resTriad.get(i).proc.equals("=") && resTriad.get(i).operand1.equals("if")); i--) {
+                        int index = (int) resTriad.get(i).index;
+                        resTriad.remove(i);
+                        countTriad--;
+                        makeNormalIndexLinks(resTriad, index);
+                    }
+                    int index = (int) resTriad.get(i).index;
+                    resTriad.remove(resTriad.get(i));
+                    countTriad--;
+                    makeNormalIndexLinks(resTriad, index);
+                }
+            }
+            if (triad.proc.equals("go")) {
+                int indexGo = Integer.valueOf(triad.operand1.split("\\)")[0]);
+                for (int i = resTriad.indexOf(triad); i < resTriad.size(); i++) {
+                    if (resTriad.get(i).index >= indexGo) {
+                        triad.operand1 = (int) resTriad.get(i).index + ")";
+                        break;
+                    }
+                }
+
+            }
+            triad.index = countTriad;
+        }
     }
 
     private String triadFormGraph(Vert curr) {
@@ -314,7 +415,7 @@ public class Optimization {
         for (int i = 0; i < triads.size(); i++) {
             if (currId > triads.get(i).index) {
                 for (int j = 0; j < triads.size() - 1; j++) {
-                    if (triads.get(j).index < triads.get(i).index &&
+                    if (triads.get(j).index <= triads.get(i).index &&
                         triads.get(j + 1).index > triads.get(i).index) {
                         triads.add(j + 1, new Triad(triads.get(i).proc, triads.get(i).operand1, triads.get(i).operand2, triads.get(i).index + 0.1));
                         triads.remove(i + 1);

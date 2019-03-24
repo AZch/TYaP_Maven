@@ -24,28 +24,10 @@ public class Main {
 //        PrecedenceAnalyz precedenceAnalyz = new PrecedenceAnalyz();
 //        int resAnalise = precedenceAnalyz.analyz(scaner);
         CodeGeneration codeGeneration = new CodeGeneration();
-        int countTLL1 = 0;
-        for (Triad triad : ll1.triads) {
-            triad.index = countTLL1;
-            countTLL1++;
-        }
-        ArrayList<Triad> codeTriad = codeGeneration.generate(ll1.triads);
         FileWriter writer = null;
-        int count = 0;
-        try {
-            writer = new FileWriter("/home/az/IdeaProjects/TYaPMVN/src/main/java/code.txt");
-
-            for (Triad triad : codeTriad) {
-                writer.write(String.valueOf(count) + ") " + triad.proc + " " + triad.operand1 + " " + triad.operand2 + "\n");
-                count++;
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Optimization optimization = new Optimization();
         ArrayList<Triad> triads = optimization.make(ll1.triads);
-        count = 0;
+        int count = 0;
         try {
             writer = new FileWriter("/home/az/IdeaProjects/TYaPMVN/src/main/java/output.txt");
 
@@ -62,6 +44,20 @@ public class Main {
 
             for (Triad triad : triads) {
                 writer.write(String.valueOf(triad.index) + ") " + triad.proc + " " + triad.operand1 + " " + triad.operand2 + "\n");
+                count++;
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        triads = codeGeneration.generate(triads);
+        count = 0;
+        try {
+            writer = new FileWriter("/home/az/IdeaProjects/TYaPMVN/src/main/java/code.txt");
+
+            for (Triad triad : triads) {
+                writer.write(String.valueOf(count) + ") " + triad.proc + " " + triad.operand1 + " " + triad.operand2 + "\n");
                 count++;
             }
             writer.close();

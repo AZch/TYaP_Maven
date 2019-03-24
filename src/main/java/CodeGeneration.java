@@ -140,8 +140,15 @@ public class CodeGeneration {
                 isFun = true;
             }
             if (triad.proc.equals("fun") && triad.operand1.equals("main") && triad.operand2.equals("end")) {
-                int a;
-                a = 6;
+                codeTriad.add(new Triad("nop", "", ""));
+                codeTriad.add(new Triad("popq", "%rbp", ""));
+                codeTriad.add(new Triad(".cfi_def_cfa", "7", "8"));
+                codeTriad.add(new Triad("ret", "", ""));
+                codeTriad.add(new Triad(".cfi_endproc", "", ""));
+                codeTriad.add(new Triad(".LFE0:", "", ""));
+                codeTriad.add(new Triad(".size", "main", ".-main"));
+                codeTriad.add(new Triad(".ident", "\"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0\"", ""));
+                codeTriad.add(new Triad(".section", ".note.GNU-stack,\"\"", "@progbits"));
             }
         }
         return codeTriad;

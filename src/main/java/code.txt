@@ -1,72 +1,40 @@
-0)  .global global.bg
-1)  .data 
-2)  .align 4
-3) .type global.bg @object
-4) .size global.bg 4
-5) global.bg:  
-6) .long 10 
-7)  .global asd.aVar
-8)  .data 
-9)  .align 4
-10) .type asd.aVar @object
-11) .size asd.aVar 4
-12)  .global asd.bCh
-13)  .data 
-14)  .align 1
-15) .type asd.bCh @object
-16) .size asd.bCh 1
-17)  .global asd.ggg
-18)  .data 
-19)  .align 4
-20) .type asd.ggg @object
-21) .size asd.ggg 4
-22) .text  
-23) .global main 
-24) .type main @function
-25) main:  
-26) .LFB0:  
-27) .cfi_startproc  
-28) pushq %rbp 
-29) .cfi_def_cfa_offset 16 
-30) .cfi_offset 6 -16
-31) movq %rsp %rbp
-32) .cfi_def_cfa_register 6 
-33) movl $45 -29(%rbp)
-34) movl $45 -29(%rbp)
-35) movl 29(%rbp) edx
-36) addl $4 edx
-37) subl $0 edx
-38) multl $3 edx
-39) subl $160 edx
-40) addl $99 edx
-41) movl $edx -20(%rbp)
-42) movl 20(%rbp) edx
-43) addl $15 edx
-44) cmpl edx $0
-45) jm .L44 
-46) movl $40 -29(%rbp)
-47) movl $7 -16(%rbp)
-48) movl 16(%rbp) edx
-49) addl $10 edx
-50) movl $edx -12(%rbp)
-51) movl 29(%rbp) edx
-52) movl 24(%rbp) ecx
-53) cmpl edx ecx
-54) jm .L35 
-55) movl $32 -25(%rbp)
-56) .L35:  
-57) movl 16(%rbp) edx
-58) movl 12(%rbp) ecx
-59) cmpl edx ecx
-60) jm .L43 
-61) movl $5 -8(%rbp)
-62) movl $180 -8(%rbp)
-63) .L43:  
-64) jmp .L49 
-65) .L44:  
-66) movl $40 -29(%rbp)
-67) movl $808 -4(%rbp)
-68) movl $142 -4(%rbp)
-69) .L49:  
-70) movl 29(%rbp) edx
-71) movl $edx -20(%rbp)
+0) .text  
+1) .global main 
+2) .type main @function
+3) main:  
+4) .LFB0:  
+5) .cfi_startproc  
+6) pushq %rbp 
+7) .cfi_def_cfa_offset 16 
+8) .cfi_offset 6 -16
+9) movq %rsp %rbp
+10) .cfi_def_cfa_register 6 
+11) movl $45 -24(%rbp)
+12) movl 24(%rbp) edx
+13) addl $4 edx
+14) subl $0 edx
+15) multl $3 edx
+16) subl $160 edx
+17) addl $99 edx
+18) movl $edx -16(%rbp)
+19) movl $40 -24(%rbp)
+20) movl 16(%rbp) edx
+21) addl $15 edx
+22) cmpl edx $0
+23) jm .L23 
+24) movl $7 -12(%rbp)
+25) movl 12(%rbp) edx
+26) addl $10 edx
+27) movl $edx -8(%rbp)
+28) .L23:  
+29) movl 24(%rbp) edx
+30) movl $edx -16(%rbp)
+31) nop  
+32) popq %rbp 
+33) .cfi_def_cfa 7 8
+34) ret  
+35) .cfi_endproc  
+36) .LFE0:  
+37) .size main .-main
+38) .ident "GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0" 
+39) .section .note.GNU-stack,"" @progbits
