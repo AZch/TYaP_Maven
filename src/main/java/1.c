@@ -1,3 +1,6 @@
+#include <stdio.h>
+
+//printf("%d", 20);
 int globPerem = 40, secPeremennia;
 
 struct asd {
@@ -7,9 +10,10 @@ struct asd {
 
 void main() {
     int aMain = 4;
-    int bMain = (5 + 3) * 4;
+printf("%d", aMain);
+    int bMain = 5 ;
     int gMain;
-     
+     printf("%d", 20);
     // int main.asd.m.aVar
     // int main.asd.m.perem
     char charMainPerem = 'c';

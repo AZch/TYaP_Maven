@@ -11,6 +11,7 @@ void main() {
     asd m;
     m.aVar = 45;
     m.aVar = 45;
+    m.ggg = 1337;
     int a;
     a = 3 * ((4 + m.aVar) - (7 / 9)) - (16 * 10) + 99;
 
@@ -26,6 +27,7 @@ void main() {
         }
     } else {
         m.aVar = 40;
+	m.ggg = 228;
         int joji = 808;
         joji = 90 + 52;
     }

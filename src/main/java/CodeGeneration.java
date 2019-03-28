@@ -2,10 +2,10 @@ import java.util.ArrayList;
 
 public class CodeGeneration {
     public ArrayList<Triad> generate(ArrayList<Triad> triads) {
-        regAvail.add("eax");
-        regAvail.add("ebx");
-        regAvail.add("ecx");
-        regAvail.add("edx");
+        regAvail.add("%eax");
+        regAvail.add("%ebx");
+        regAvail.add("%ecx");
+        regAvail.add("%edx");
         ArrayList<Integer> goLinks = new ArrayList<>();
         boolean isFun = false;
         boolean isFindRes = false;
@@ -72,13 +72,14 @@ public class CodeGeneration {
                                 } else if (cmpOper.equals("=="))
                                     cmpOper = "je";
                                 else if (cmpOper.equals(">"))
-                                    cmpOper = "jm";
+                                    cmpOper = "jle";
                                 else if (cmpOper.equals("<"))
                                     cmpOper = "jl";
                                 else if (cmpOper.equals(">="))
                                     cmpOper = "jme";
                                 else if (cmpOper.equals("<="))
-                                    cmpOper = "jle";
+                                    cmpOper = "jl" +
+                                            "";
                                 else if (cmpOper.equals("!="))
                                     cmpOper = "jne";
                                 regAvail.add(regStack.get(regStack.size() - 1));
@@ -91,7 +92,7 @@ public class CodeGeneration {
                                         "-" + String.valueOf(bytePos(startFun, triads, triads.get(Integer.valueOf(triad.operand1.split("\\)")[0])).operand1)) + "(%rbp)"));
                             else {
                                 codeTriad.add(new Triad("movl",
-                                        "$" + String.valueOf(regStack.get(regStack.size() - 1)),
+                                        String.valueOf(regStack.get(regStack.size() - 1)),
                                         "-" + String.valueOf(bytePos(startFun, triads, triads.get(Integer.valueOf(triad.operand1.split("\\)")[0])).operand1)) + "(%rbp)"));
                                 regAvail.add(regStack.get(regStack.size() - 1));
                                 regStack.remove(regStack.size() - 1);
@@ -255,7 +256,7 @@ public class CodeGeneration {
             if (thisTriad.proc.equals("-"))
                 codeTriad.add(new Triad("subl", regSec, regFirst));
             if (thisTriad.proc.equals("*"))
-                codeTriad.add(new Triad("multl", regSec, regFirst));
+                codeTriad.add(new Triad("imull", regSec, regFirst));
             if (thisTriad.proc.equals("/"))
                 codeTriad.add(new Triad("divl", regSec, regFirst));
             if (thisTriad.proc.equals("==") || thisTriad.proc.equals(">") ||
@@ -275,13 +276,14 @@ public class CodeGeneration {
             if (thisTriad.proc.equals("-"))
                 codeTriad.add(new Triad("subl", "$" + resultSec, regFirst));
             if (thisTriad.proc.equals("*"))
-                codeTriad.add(new Triad("multl", "$" + resultSec, regFirst));
+                codeTriad.add(new Triad("imull", "$" + resultSec, regFirst));
             if (thisTriad.proc.equals("/"))
                 codeTriad.add(new Triad("divl", "$" + resultSec, regFirst));
             if (thisTriad.proc.equals("==") || thisTriad.proc.equals(">") ||
                     thisTriad.proc.equals("<") || thisTriad.proc.equals(">=") ||
                     thisTriad.proc.equals("<=")) {
-                codeTriad.add(new Triad("cmpl", regFirst, "$" + resultSec));
+                codeTriad.add(new Triad("movl", "$" + resultSec, regAvail.get(regAvail.size() - 1)));
+                codeTriad.add(new Triad("cmpl", regFirst, regAvail.get(regAvail.size() - 1)));
                 cmpOper = thisTriad.proc;
             }
             return Integer.MAX_VALUE;
@@ -293,10 +295,10 @@ public class CodeGeneration {
                 codeTriad.add(new Triad("addl", "$" + resultFirst, regSec));
             if (thisTriad.proc.equals("-")) {
                 codeTriad.add(new Triad("subl", "$" + regFirst, regSec));
-                codeTriad.add(new Triad("multl", "$" + -1, regSec));
+                codeTriad.add(new Triad("imull", "$" + -1, regSec));
             }
             if (thisTriad.proc.equals("*"))
-                codeTriad.add(new Triad("multl", "$" + resultFirst, regSec));
+                codeTriad.add(new Triad("imull", "$" + resultFirst, regSec));
             if (thisTriad.proc.equals("/")) {
                 codeTriad.add(new Triad("movl", "$" + resultFirst, regAvail.get(regAvail.size() - 1)));
                 codeTriad.add(new Triad("divl", regSec, regAvail.get(regAvail.size() - 1)));
@@ -305,7 +307,8 @@ public class CodeGeneration {
             if (thisTriad.proc.equals("==") || thisTriad.proc.equals(">") ||
                     thisTriad.proc.equals("<") || thisTriad.proc.equals(">=") ||
                     thisTriad.proc.equals("<=")) {
-                codeTriad.add(new Triad("cmpl", "$" + resultFirst, regSec));
+                codeTriad.add(new Triad("movl", "$" + resultSec, regAvail.get(regAvail.size() - 1)));
+                codeTriad.add(new Triad("cmpl", regAvail.get(regAvail.size() - 1), regSec));
                 cmpOper = thisTriad.proc;
             }
             return Integer.MAX_VALUE;

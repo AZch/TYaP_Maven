@@ -9,6 +9,9 @@ globPerem:
 	.long	40
 	.comm	secPeremennia,4,4
 	.comm	m,8,8
+	.section	.rodata
+.LC0:
+	.string	"%d"
 	.text
 	.globl	main
 	.type	main, @function
@@ -20,8 +23,14 @@ main:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
+	subq	$32, %rsp
 	movl	$4, -20(%rbp)
-	movl	$32, -16(%rbp)
+	movl	-20(%rbp), %eax
+	movl	%eax, %esi
+	leaq	.LC0(%rip), %rdi
+	movl	$0, %eax
+	call	printf@PLT
+	movl	$5, -16(%rbp)
 	movb	$99, -22(%rbp)
 	movl	-20(%rbp), %eax
 	cmpl	-16(%rbp), %eax
@@ -44,7 +53,7 @@ main:
 	movb	$109, -21(%rbp)
 	movl	$57, -4(%rbp)
 	nop
-	popq	%rbp
+	leave
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc

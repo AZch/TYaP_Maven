@@ -54,10 +54,13 @@ public class Main {
         triads = codeGeneration.generate(triads);
         count = 0;
         try {
-            writer = new FileWriter("/home/az/IdeaProjects/TYaPMVN/src/main/java/code.txt");
+            writer = new FileWriter("/home/az/IdeaProjects/TYaPMVN/src/main/java/code.s");
 
             for (Triad triad : triads) {
-                writer.write(String.valueOf(count) + ") " + triad.proc + " " + triad.operand1 + " " + triad.operand2 + "\n");
+                String comma = "";
+                if (!triad.operand1.equals("") && !triad.operand2.equals(""))
+                    comma = ",";
+                writer.write(triad.proc + " " + triad.operand1 + comma + " " + triad.operand2 + "\n");
                 count++;
             }
             writer.close();
